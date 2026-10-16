@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.metrics import compute_kpis  # noqa: E402
+from src.pipeline import run as run_pipeline  # noqa: E402
 
 DB_PATH = ROOT / "data" / "processed" / "warehouse.db"
 
@@ -22,6 +23,14 @@ CHANNEL_LABELS = {
     "google_ads": "Google Ads",
     "meta_ads": "Meta Ads",
 }
+
+
+def ensure_warehouse(days: int = 60) -> None:
+    """Build the warehouse on first run (local or Streamlit Cloud)."""
+    if DB_PATH.exists():
+        return
+    with st.spinner("Gerando dados sintéticos e rodando o ETL pela primeira vez..."):
+        run_pipeline(days=days)
 
 
 @st.cache_data(show_spinner=False)
@@ -95,9 +104,10 @@ def main() -> None:
     )
     st.caption("Dataset sintético para demo de portfolio — não são dados reais de cliente.")
 
+    ensure_warehouse()
     df = load_fact()
     if df.empty:
-        st.error("Warehouse não encontrado.")
+        st.error("Não foi possível carregar o warehouse.")
         st.code("python -m src.pipeline", language="bash")
         st.stop()
 

@@ -3,13 +3,28 @@
 from __future__ import annotations
 
 import sqlite3
+import sys
 from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-DB_PATH = Path(__file__).resolve().parents[1] / "data" / "warehouse" / "ecommerce.db"
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from src.run_warehouse import run as run_warehouse  # noqa: E402
+
+DB_PATH = ROOT / "data" / "warehouse" / "ecommerce.db"
+
+
+def ensure_warehouse() -> None:
+    """Build the warehouse on first run (local or Streamlit Cloud)."""
+    if DB_PATH.exists():
+        return
+    with st.spinner("Gerando dados sintéticos e montando o warehouse pela primeira vez..."):
+        run_warehouse(n_customers=80, n_orders=250)
 
 
 @st.cache_data(show_spinner=False)
@@ -48,8 +63,9 @@ def main() -> None:
     st.caption("SQL-first analytics · raw → staging → marts → quality gates → BI")
     st.caption("Dataset sintético para demo de portfolio — não são dados reais de cliente.")
 
+    ensure_warehouse()
     if not DB_PATH.exists():
-        st.error("Warehouse não encontrado.")
+        st.error("Não foi possível montar o warehouse.")
         st.code("python -m src.run_warehouse", language="bash")
         st.stop()
 

@@ -3,12 +3,19 @@
 ![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white)
 ![SQL](https://img.shields.io/badge/SQL-SQLite-003B57?logo=sqlite&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/BI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-pytest-0A9EDC?logo=pytest&logoColor=white)
+![CI](https://github.com/YMatheusRodriguesDaSilva/portfolio-data-engineering/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 Portfolio project de **Data Engineering / Analytics Engineering**: pipeline de mídia paga (ETL) → modelo dimensional → checagens de qualidade → dashboard analítico.
 
 > **Dados sintéticos** (não são dados reais de cliente). Veja [`docs/DATA.md`](./docs/DATA.md).
+
+## Live demo
+
+> Após o deploy no Streamlit Cloud, cole o link aqui.  
+> Guia: [`../docs/STREAMLIT_CLOUD.md`](../docs/STREAMLIT_CLOUD.md)
+
+<!-- Exemplo: [Abrir dashboard](https://SEU-APP.streamlit.app) -->
 
 ---
 

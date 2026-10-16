@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test-ads-etl:
+    name: Ads ETL + Dashboard
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 01-ads-etl-dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: 01-ads-etl-dashboard/requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run pipeline
+        run: python -m src.pipeline --days 14
+      - name: Run tests
+        run: pytest -q
+
+  test-ecommerce-warehouse:
+    name: E-commerce Analytics Warehouse
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 02-ecommerce-analytics-warehouse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: 02-ecommerce-analytics-warehouse/requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Build warehouse
+        run: python -m src.run_warehouse --customers 40 --orders 80
+      - name: Run tests
+        run: pytest -q
