@@ -73,8 +73,16 @@ def main() -> None:
     st.markdown(
         """
         <style>
-        .block-container { padding-top: 1.2rem; }
-        div[data-testid="stMetricValue"] { font-size: 1.4rem; }
+        .block-container { padding-top: 1.2rem; max-width: 1200px; }
+        div[data-testid="stMetricValue"] { font-size: 1.35rem; }
+        .footer-note {
+            margin-top: 1.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            background: #f5f7f9;
+            color: #4a5560;
+            font-size: 0.88rem;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -85,6 +93,7 @@ def main() -> None:
         "Camada analítica sobre o data warehouse dimensional · "
         "ETL (Python/SQL) → SQLite → Streamlit/Plotly"
     )
+    st.caption("Dataset sintético para demo de portfolio — não são dados reais de cliente.")
 
     df = load_fact()
     if df.empty:
@@ -212,6 +221,17 @@ def main() -> None:
     st.info(
         f"**Insight:** a campanha **{best['campaign']}** lidera em ROAS "
         f"({best['ROAS']:.2f}x) no recorte atual."
+    )
+
+    st.markdown(
+        """
+        <div class="footer-note">
+          <strong>Como foi construído:</strong> extract → transform → quality gates →
+          load dimensional (dim_date, dim_channel, dim_campaign, fact_ads_performance) → BI.
+          Dados gerados localmente para demonstração pública no GitHub.
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 

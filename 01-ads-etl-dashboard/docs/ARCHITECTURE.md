@@ -2,34 +2,47 @@
 
 ## Overview
 
-This project simulates a paid-media analytics stack:
+Pipeline de analytics de mídia paga pensado como portfolio profissional:
 
-1. **Extract** raw daily performance files (Google Ads / Meta Ads style CSVs)
-2. **Transform** into a star-schema dimensional model
-3. **Quality-check** grain, FKs and metric sanity rules
-4. **Load** into SQLite (swap-friendly to PostgreSQL)
-5. **Serve** KPIs via Streamlit
+1. **Generate / Extract** — CSVs sintéticos no formato de extratos diários  
+2. **Transform** — limpeza + modelo dimensional (star schema)  
+3. **Quality** — gates de integridade e regras de negócio  
+4. **Load** — SQLite local (pronto para migrar a PostgreSQL)  
+5. **Serve** — Streamlit + Plotly para KPIs
 
 ```text
-┌──────────────┐     ┌───────────┐     ┌────────────┐     ┌──────────┐     ┌────────────┐
-│ Sample / API │ --> │  Extract  │ --> │ Transform  │ --> │ Quality  │ --> │   Load     │
-│  CSV files   │     │ validate  │     │ dims+fact  │     │  gates   │     │  SQLite    │
-└──────────────┘     └───────────┘     └────────────┘     └──────────┘     └─────┬──────┘
-                                                                                 │
-                                                                                 v
-                                                                          ┌────────────┐
-                                                                          │ Streamlit  │
-                                                                          │ Dashboard  │
-                                                                          └────────────┘
+┌──────────────────┐
+│ Sample generator │  (synthetic Google/Meta style CSVs)
+└────────┬─────────┘
+         ▼
+┌──────────────────┐
+│     Extract      │  validate columns + concatenate sources
+└────────┬─────────┘
+         ▼
+┌──────────────────┐
+│    Transform     │  dims + fact grain (date × channel × campaign)
+└────────┬─────────┘
+         ▼
+┌──────────────────┐
+│     Quality      │  FK, grain, non-negative metrics, clicks≤impressions
+└────────┬─────────┘
+         ▼
+┌──────────────────┐
+│       Load       │  sql/schema.sql → warehouse.db
+└────────┬─────────┘
+         ▼
+┌──────────────────┐
+│    Dashboard     │  Streamlit KPIs + charts
+└──────────────────┘
 ```
 
 ## Dimensional model
 
 | Table | Grain / role |
 |-------|----------------|
-| `dim_date` | One row per calendar day (`date_id = YYYYMMDD`) |
+| `dim_date` | 1 linha por dia (`date_id = YYYYMMDD`) |
 | `dim_channel` | Google Ads / Meta Ads |
-| `dim_campaign` | Campaign + objective + status |
+| `dim_campaign` | campaign + objective + status |
 | `fact_ads_performance` | date × channel × campaign |
 
 ### Fact metrics
@@ -38,19 +51,18 @@ This project simulates a paid-media analytics stack:
 
 ### Derived KPIs
 
-- CTR = clicks / impressions
-- CPC = spend / clicks
-- CPA = spend / conversions
-- ROAS = revenue / spend
+- CTR = clicks / impressions  
+- CPC = spend / clicks  
+- CPA = spend / conversions  
+- ROAS = revenue / spend  
 
-## Quality gates
+## Why SQLite in the portfolio?
 
-- Fact not empty
-- `clicks <= impressions`
-- Non-negative metrics
-- FK integrity to all dimensions
-- Unique grain `(date_id, channel_id, campaign_id)`
+Zero setup for anyone cloning the repo. The SQL is intentionally portable so the same model can move to PostgreSQL with small changes.
 
-## Why SQLite here
+## Design choices for readability
 
-Zero-setup for portfolio demos. The SQL schema is intentionally plain so it can be moved to PostgreSQL with minimal changes.
+- One module per ETL responsibility (`extract`, `transform`, `quality`, `load`, `pipeline`)
+- Shared KPI functions (`metrics.py`) used by pipeline logs and dashboard
+- Explicit logging instead of silent scripts
+- Tests covering happy path + invalid dates

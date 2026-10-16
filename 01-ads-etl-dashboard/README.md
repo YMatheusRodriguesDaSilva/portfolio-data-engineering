@@ -1,110 +1,175 @@
 # Ads ETL Pipeline + Analytics Dashboard
 
-Portfolio project for **Data Engineer / Analytics Engineer**.
+![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white)
+![SQL](https://img.shields.io/badge/SQL-SQLite-003B57?logo=sqlite&logoColor=white)
+![Streamlit](https://img.shields.io/badge/BI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-pytest-0A9EDC?logo=pytest&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-End-to-end flow:
+Portfolio project de **Data Engineering / Analytics Engineering**: pipeline de mídia paga (ETL) → modelo dimensional → checagens de qualidade → dashboard analítico.
 
-1. Generate sample marketing ads extracts (Google Ads + Meta Ads style)
-2. Run ETL into a **dimensional model** (SQLite)
-3. Enforce **data quality gates**
-4. Explore KPIs in a **Streamlit dashboard**
+> **Dados sintéticos** (não são dados reais de cliente). Veja [`docs/DATA.md`](./docs/DATA.md).
 
-> Mirrors real work: paid-media extracts → pipelines → warehouse model → BI layer.
+---
 
-## Architecture
+## Em 30 segundos
+
+| Para quem | O que olhar |
+|-----------|-------------|
+| **Recrutador / hiring manager** | Camadas ETL claras, star schema, quality gates, dashboard de KPIs |
+| **Pessoa de negócio / empresa** | Spend, Revenue, ROAS, CTR, CPC, CPA por canal e campanha |
+| **Quem está começando** | Código comentado por etapas + passo a passo para rodar local |
 
 ```text
-raw CSV extracts
-  → extract / validate
-  → transform (clean + dimensional model)
-  → quality gates
-  → load (dim_date, dim_channel, dim_campaign, fact_ads_performance)
-  → Streamlit dashboard (KPIs, trends, channel mix)
+CSV (Google Ads / Meta Ads style)
+        ↓ extract
+        ↓ transform (dims + fact)
+        ↓ quality gates
+        ↓ load (SQLite)
+        ↓ Streamlit dashboard
 ```
 
-Details: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
+---
+
+## Preview
+
+<p align="center">
+  <img src="assets/preview_trend.png" alt="Spend vs Revenue trend" width="100%" />
+</p>
+
+<p align="center">
+  <img src="assets/preview_channel.png" alt="Spend by channel" width="48%" />
+  <img src="assets/preview_campaign.png" alt="Spend by campaign" width="48%" />
+</p>
+
+> Se as imagens ainda não aparecerem no clone local, rode: `python scripts/export_previews.py`
+
+---
 
 ## Stack
 
-- Python, pandas
-- SQL / SQLite (PostgreSQL-friendly schema)
-- Streamlit + Plotly
-- pytest
+- **Python** + pandas  
+- **SQL / SQLite** (schema simples, fácil de levar para PostgreSQL)  
+- **Streamlit** + Plotly  
+- **pytest**
 
-## Quick start
+---
+
+## Como rodar (do zero)
 
 ```bash
+# 1) ambiente
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
-# full pipeline
+# 2) gera dados sintéticos + ETL + warehouse
 python -m src.pipeline
 
-# or with Make
-make pipeline
-
-# dashboard
+# 3) dashboard
 streamlit run dashboard/app.py
-# make dashboard
 
-# tests
+# 4) testes
 pytest -q
 ```
 
-### Useful CLI flags
+### Atalhos (Make)
 
 ```bash
-# custom sample window
-python -m src.pipeline --days 30
-
-# reuse existing files in data/raw
-python -m src.pipeline --skip-generate
+make setup      # cria venv + instala deps
+make pipeline   # roda o ETL
+make dashboard  # sobe o Streamlit
+make test       # pytest
 ```
+
+### Opções do pipeline
+
+```bash
+python -m src.pipeline --days 30          # janela menor de sample
+python -m src.pipeline --skip-generate    # reusa CSVs já gerados em data/raw
+```
+
+---
 
 ## KPIs
 
-| KPI | Formula |
-|-----|---------|
-| CTR | clicks / impressions |
-| CPC | spend / clicks |
-| CPA | spend / conversions |
-| ROAS | revenue / spend |
+| KPI | Fórmula | Para que serve |
+|-----|---------|----------------|
+| **Spend** | soma do investimento | quanto foi gasto |
+| **Revenue** | receita atribuída | retorno gerado |
+| **ROAS** | revenue / spend | eficiência do investimento |
+| **CTR** | clicks / impressions | atratividade do anúncio |
+| **CPC** | spend / clicks | custo por clique |
+| **CPA** | spend / conversions | custo por conversão |
 
-Also tracked: Spend, Impressions, Clicks, Conversions, Revenue.
+---
 
-## Project structure
+## Modelo dimensional
+
+| Tabela | Papel |
+|--------|--------|
+| `dim_date` | Calendário (`date_id = YYYYMMDD`) |
+| `dim_channel` | Google Ads / Meta Ads |
+| `dim_campaign` | Campanha + objetivo + status |
+| `fact_ads_performance` | Grão: data × canal × campanha |
+
+Detalhes: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
+
+### Quality gates (antes do load)
+
+- fato não vazio  
+- `clicks <= impressions`  
+- métricas ≥ 0  
+- integridade de FKs  
+- grão único `(date_id, channel_id, campaign_id)`
+
+---
+
+## Estrutura
 
 ```text
 01-ads-etl-dashboard/
-├── dashboard/app.py
-├── docs/ARCHITECTURE.md
-├── data/raw/
-├── data/processed/
+├── assets/                 # previews do README
+├── dashboard/app.py        # Streamlit BI
+├── docs/
+│   ├── ARCHITECTURE.md
+│   └── DATA.md             # transparência sobre dados sintéticos
+├── data/raw/               # gerado localmente (não versionado)
+├── data/processed/         # warehouse.db local (não versionado)
 ├── sql/schema.sql
-├── src/
-│   ├── config.py
-│   ├── generate_sample_data.py
-│   ├── extract.py
-│   ├── transform.py
-│   ├── quality.py
-│   ├── metrics.py
-│   ├── load.py
-│   ├── logging_config.py
-│   └── pipeline.py
+├── src/                    # extract → transform → quality → load
+├── scripts/export_previews.py
 ├── tests/
 ├── Makefile
+├── LICENSE
 └── requirements.txt
 ```
 
-## What this demonstrates
+---
 
-- ETL orchestration with clear layers
-- Dimensional modeling (star schema)
-- Data quality assertions before load
-- Analytics / BI consumption layer
-- Testable, reproducible portfolio code
+## O que este projeto demonstra
+
+1. **ETL orquestrado** com responsabilidades separadas  
+2. **Modelagem dimensional** (star schema)  
+3. **Data quality** como etapa explícita do pipeline  
+4. **Camada analítica / BI** consumindo o warehouse  
+5. **Código testável e reproduzível** para portfolio público  
+
+---
+
+## English summary
+
+End-to-end **Data Engineering / Analytics Engineering** portfolio project:
+
+synthetic Google Ads / Meta Ads-style extracts → ETL → dimensional SQLite warehouse → data quality gates → Streamlit KPI dashboard (Spend, Revenue, ROAS, CTR, CPC, CPA).
+
+Data is **synthetic by design** (safe for public GitHub, no client credentials). See [`docs/DATA.md`](./docs/DATA.md).
+
+---
 
 ## Author
 
-Matheus Rodrigues da Silva — Data Engineer | Analytics Engineer
+**Matheus Rodrigues da Silva**  
+Data Engineer | Analytics Engineer  
+
+LinkedIn: [linkedin.com/in/mmatheusrodrigues](https://www.linkedin.com/in/mmatheusrodrigues/)

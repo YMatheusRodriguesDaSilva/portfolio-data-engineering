@@ -1,4 +1,4 @@
-.PHONY: setup pipeline dashboard test clean
+.PHONY: setup pipeline dashboard test previews clean
 
 setup:
 	python3 -m venv .venv
@@ -15,6 +15,9 @@ dashboard:
 
 test:
 	. .venv/bin/activate && pytest -q
+
+previews:
+	. .venv/bin/activate && python scripts/export_previews.py
 
 clean:
 	rm -f data/processed/warehouse.db
