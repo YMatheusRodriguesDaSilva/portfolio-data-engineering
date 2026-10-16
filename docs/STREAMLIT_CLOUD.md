@@ -9,19 +9,19 @@ Você vai publicar **dois apps** (um por projeto), ambos a partir deste monorepo
 
 ## App 1 — Ads ETL Dashboard
 
-1. Em Streamlit Cloud → **New app**
+1. Em Streamlit Cloud → **Create app** → **Yup, I have an app**
 2. Repository: `YMatheusRodriguesDaSilva/portfolio-data-engineering`
 3. Branch: `main`
 4. **Main file path:**
    ```text
    01-ads-etl-dashboard/dashboard/app.py
    ```
-5. Advanced settings → **Python version:** 3.11  
-6. Advanced settings → **Requirements file:**
-   ```text
-   01-ads-etl-dashboard/requirements.txt
-   ```
-7. Deploy
+5. **Advanced settings:**
+   - Python version: **3.11**
+   - **Secrets:** deixe **vazio** (não coloque path de requirements aqui)
+6. Save → **Deploy**
+
+O Cloud usa automaticamente `01-ads-etl-dashboard/dashboard/requirements.txt`.
 
 Na primeira abertura o app gera os dados sintéticos sozinho (pode levar ~30–60s).
 
@@ -33,10 +33,7 @@ Repita com:
   ```text
   02-ecommerce-analytics-warehouse/dashboard/app.py
   ```
-- Requirements file:
-  ```text
-  02-ecommerce-analytics-warehouse/requirements.txt
-  ```
+- Advanced settings: Python **3.11**, Secrets vazio
 
 ## Depois do deploy
 
@@ -48,6 +45,7 @@ Repita com:
 
 | Problema | Solução |
 |----------|---------|
-| ModuleNotFoundError `src` | Confirme o Main file path (tem que ser o `dashboard/app.py` do projeto) |
+| "Invalid format: please enter valid TOML" | Você colou o path no campo Secrets — apague tudo e Salve |
+| ModuleNotFoundError | Confirme o Main file path (`dashboard/app.py`) e que o push com `dashboard/requirements.txt` já está no GitHub |
 | App fica em branco na 1ª carga | Aguarde o bootstrap do warehouse; recarregue a página |
 | Install lento | Normal na 1ª vez; deploys seguintes ficam mais rápidos |
