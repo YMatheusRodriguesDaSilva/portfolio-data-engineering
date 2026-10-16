@@ -4,10 +4,10 @@
 
 Dois projetos prontos para GitHub / LinkedIn Featured.
 
-| Projeto | Foco | Destaque |
-|---------|------|----------|
-| [`01-ads-etl-dashboard`](./01-ads-etl-dashboard) | Data Engineering + BI | ETL de mídia paga → star schema → quality → Streamlit |
-| [`02-ecommerce-analytics-warehouse`](./02-ecommerce-analytics-warehouse) | Analytics Engineering | SQL-first staging/marts → quality → Streamlit |
+| Projeto | Foco | Live demo |
+|---------|------|-----------|
+| [`01-ads-etl-dashboard`](./01-ads-etl-dashboard) | Data Engineering + BI | [Streamlit](https://portfolio-data-engineering-dktms26fxjcscyufkdrkwq.streamlit.app/) |
+| [`02-ecommerce-analytics-warehouse`](./02-ecommerce-analytics-warehouse) | Analytics Engineering | [Streamlit](https://portfolio-data-engineering-as4n734uekubaxk4fknmqz.streamlit.app/) |
 
 Ambos usam **dados sintéticos** (seguros para repo público).
 
@@ -19,7 +19,10 @@ A cada push na `main`, o GitHub Actions:
 
 ## Live dashboards (Streamlit Cloud)
 
-Guia passo a passo: [`docs/STREAMLIT_CLOUD.md`](./docs/STREAMLIT_CLOUD.md)
+- **Ads ETL:** https://portfolio-data-engineering-dktms26fxjcscyufkdrkwq.streamlit.app/
+- **E-commerce warehouse:** https://portfolio-data-engineering-as4n734uekubaxk4fknmqz.streamlit.app/
+
+Guia: [`docs/STREAMLIT_CLOUD.md`](./docs/STREAMLIT_CLOUD.md)
 
 ## Quick start
 

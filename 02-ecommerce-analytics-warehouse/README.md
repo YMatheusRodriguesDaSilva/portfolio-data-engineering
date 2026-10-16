@@ -12,10 +12,9 @@ Portfolio de **Analytics Engineering**: extracts transacionais → **staging** �
 
 ## Live demo
 
-> Após o deploy no Streamlit Cloud, cole o link aqui.  
-> Guia: [`../docs/STREAMLIT_CLOUD.md`](../docs/STREAMLIT_CLOUD.md)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://portfolio-data-engineering-as4n734uekubaxk4fknmqz.streamlit.app/)
 
-<!-- Exemplo: [Abrir dashboard](https://SEU-APP.streamlit.app) -->
+**[Abrir dashboard](https://portfolio-data-engineering-as4n734uekubaxk4fknmqz.streamlit.app/)**
 
 ---
 
