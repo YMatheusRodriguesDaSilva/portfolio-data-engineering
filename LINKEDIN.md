@@ -1,28 +1,21 @@
-# How to use this portfolio on LinkedIn
+# Como usar no LinkedIn
 
-## 1. Publish on GitHub
+## 1. Subir no GitHub
 
-Option A — keep monorepo:
-- Create public repo `portfolio-data-engineering`
-- Push this folder
+Repo sugerido: `portfolio-data-engineering` (público).
 
-Option B — split (recommended for Featured):
-1. `ads-etl-dashboard` ← contents of `01-ads-etl-dashboard`
-2. `ecommerce-analytics-warehouse` ← contents of `02-ecommerce-analytics-warehouse`
+## 2. Featured
 
-## 2. Add to LinkedIn Featured
+Adicione os dois projetos (ou o monorepo) em **Destaques**:
 
-- Project 1 link + screenshot of Streamlit dashboard
-- Project 2 link + short description of staging/marts/quality
+### Projeto 1 — Ads ETL + Dashboard
+End-to-end paid media pipeline: extract → dimensional model → data quality → Streamlit KPIs (Spend, ROAS, CTR, CPA). Synthetic data for safe public demo.
 
-## 3. Suggested Featured text
+### Projeto 2 — E-commerce Analytics Warehouse
+SQL-first analytics engineering: staging → marts → quality gates (incl. revenue reconciliation) → BI dashboard.
 
-**Ads ETL + Dashboard**  
-End-to-end paid media pipeline: extract → transform → dimensional model → Streamlit KPIs (spend, ROAS, CTR, CPA).
+## 3. Prints
 
-**E-commerce Analytics Warehouse**  
-SQL analytics engineering with staging/marts layers and automated data quality checks.
-
-## 4. One-liner for About / Experience
-
-Built portfolio projects covering ETL/ELT pipelines, dimensional modeling, SQL marts, data quality gates, and BI dashboards (Python, SQL, Streamlit).
+Use as imagens em:
+- `01-ads-etl-dashboard/assets/`
+- `02-ecommerce-analytics-warehouse/assets/`

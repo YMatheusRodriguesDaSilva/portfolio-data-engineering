@@ -5,6 +5,10 @@ from __future__ import annotations
 import sqlite3
 from dataclasses import dataclass
 
+from src.logging_config import get_logger
+
+logger = get_logger("ecom_wh.quality")
+
 
 @dataclass
 class CheckResult:
@@ -58,8 +62,35 @@ def run_checks(conn: sqlite3.Connection) -> list[CheckResult]:
         CheckResult("fact_revenue_non_negative", neg_revenue == 0, f"negative revenue rows={neg_revenue}")
     )
 
+    cancelled_in_fact = q(
+        "SELECT COUNT(*) FROM fact_order_items WHERE status NOT IN ('paid', 'shipped', 'delivered')"
+    )
+    results.append(
+        CheckResult(
+            "fact_excludes_cancelled",
+            cancelled_in_fact == 0,
+            f"invalid status rows={cancelled_in_fact}",
+        )
+    )
+
     mart_rows = q("SELECT COUNT(*) FROM mart_daily_revenue")
     results.append(CheckResult("mart_daily_revenue_not_empty", mart_rows > 0, f"rows={mart_rows}"))
+
+    category_rows = q("SELECT COUNT(*) FROM mart_category_revenue")
+    results.append(
+        CheckResult("mart_category_revenue_not_empty", category_rows > 0, f"rows={category_rows}")
+    )
+
+    # revenue reconciliation: sum(fact) ~= sum(daily mart)
+    fact_rev = q("SELECT ROUND(SUM(item_revenue), 2) FROM fact_order_items")
+    mart_rev = q("SELECT ROUND(SUM(revenue), 2) FROM mart_daily_revenue")
+    results.append(
+        CheckResult(
+            "revenue_reconciles_daily_mart",
+            abs(float(fact_rev or 0) - float(mart_rev or 0)) < 0.01,
+            f"fact={fact_rev} daily_mart={mart_rev}",
+        )
+    )
 
     return results
 
@@ -69,6 +100,6 @@ def assert_all_passed(conn: sqlite3.Connection) -> None:
     failed = [r for r in results if not r.passed]
     for r in results:
         status = "PASS" if r.passed else "FAIL"
-        print(f"[{status}] {r.name}: {r.detail}")
+        logger.info("[%s] %s — %s", status, r.name, r.detail)
     if failed:
         raise AssertionError(f"{len(failed)} data quality checks failed")
